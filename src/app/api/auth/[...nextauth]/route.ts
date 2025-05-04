@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { login } from "@/lib/firebase/service";
 import NextAuth, { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 
@@ -21,14 +22,15 @@ const authOptions: NextAuthOptions = {
           password: string;
         };
 
-        const user: any = {
-          id: 1,
-          name: "Evelyn",
-          email: "evelynsayang@gmail.com",
-          role: "admin",
-        };
+        const res = await login({ email, password });
 
-        if (email === "evelynsayang@gmail.com" && password === "evelyn3426") {
+        if (res!.data && res?.status) {
+          const user = {
+            id: res.data.id,
+            fullname: res.data.fullname,
+            email: res.data.email,
+            role: res.data?.role,
+          };
           return user;
         } else {
           return null;
