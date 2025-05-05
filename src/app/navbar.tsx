@@ -5,9 +5,6 @@ import { signIn, signOut, useSession } from "next-auth/react";
 import { usePathname } from "next/navigation";
 import { useMemo } from "react";
 
-type Status = {
-  status: "authenticated" | "unauthenticated" | "loading";
-};
 const disabledNavbar = new Set(["/login", "/register", "/404"]);
 
 export default function Navbar() {
@@ -15,7 +12,7 @@ export default function Navbar() {
     "px-3 h-8 rounded-md hover:bg-gray-200 cursor-pointer bg-white"
   );
 
-  const { status }: Status = useSession();
+  const { status, data: session } = useSession();
   const pathname: string = usePathname();
 
   const isAuthPage: boolean = useMemo(
@@ -35,10 +32,13 @@ export default function Navbar() {
         </ul>
       </div>
       <div>
-        {status === "authenticated" ? (
-          <button className={buttonClass} onClick={() => signOut()}>
-            Logout
-          </button>
+        {status === "authenticated" && session !== undefined ? (
+          <>
+            <span className="dark:text-white me-2">{session.user?.name}</span>
+            <button className={buttonClass} onClick={() => signOut()}>
+              Logout
+            </button>
+          </>
         ) : (
           <button className={buttonClass} onClick={() => signIn()}>
             Login

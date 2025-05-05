@@ -8,6 +8,7 @@ import {
   getDocs,
   getFirestore,
   query,
+  updateDoc,
   where,
 } from "firebase/firestore";
 
@@ -18,6 +19,14 @@ type User = {
   password: string;
   role?: string;
 };
+
+type Data = {
+  fullname: string;
+  email: string;
+  type: string;
+  role?: string;
+};
+
 const firestore = getFirestore(app);
 
 export async function retrieveData(collectionName: string) {
@@ -107,5 +116,32 @@ export async function login(data: { email: string; password: string }) {
       message: "Invalid Credentials",
       statusCode: 400,
     };
+  }
+}
+
+export async function loginWithGoogle(
+  data: Data,
+  callback: (res: { status: boolean; data: object }) => void
+) {
+  const q = query(
+    collection(firestore, "users"),
+    where("email", "==", data.email)
+  );
+
+  const snapshot = await getDocs(q);
+  const users = snapshot.docs.map((doc) => ({
+    id: doc.id,
+    ...(doc.data() as Omit<User, "id">),
+  }));
+
+  if (users.length > 0) {
+    const user = users[0];
+    data.role = user.role;
+    await updateDoc(doc(firestore, "users", user.id), data);
+    callback({ status: true, data });
+  } else {
+    data.role = "member";
+    await addDoc(collection(firestore, "users"), data);
+    callback({ status: true, data });
   }
 }
