@@ -14,18 +14,28 @@ export default function RegisterPage() {
     email: "",
     password: "",
   });
+  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const res = await fetch("/api/auth/register", {
-      method: "POST",
-      body: JSON.stringify(formData),
-    });
-    console.log(res.status);
-    if (res.status === 201) {
-      push("/login");
-    } else {
-      setError("Registration failed. Email might already be in use");
+    setIsLoading(true);
+
+    try {
+      const res = await fetch("/api/auth/register", {
+        method: "POST",
+        body: JSON.stringify(formData),
+      });
+      console.log(res.status);
+      if (res.status === 201) {
+        push("/login");
+      } else {
+        setError("Registration failed. Email might already be in use");
+      }
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -69,7 +79,9 @@ export default function RegisterPage() {
         >
           Password
         </FormInput>
-        <Button>Sign up</Button>
+        <Button disabled={isLoading}>
+          {isLoading ? "Sign up..." : "Sign up"}
+        </Button>
         <p className="text-sm text-center font-light text-gray-500 dark:text-gray-300">
           Already have an account yet?{" "}
           <Link
