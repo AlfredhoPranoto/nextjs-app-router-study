@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import Button from "@/components/elements/Button";
 import FormInput from "@/components/fragments/FormInput";
@@ -5,7 +6,7 @@ import AuthLayout from "@/components/layouts/AuthLayout";
 import Alert from "@/components/widgets/Alert";
 import { signIn } from "next-auth/react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 
 export default function LoginPage() {
@@ -13,8 +14,10 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const callbackUrl = searchParams.get('callbackUrl') || "/";
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
@@ -26,14 +29,14 @@ export default function LoginPage() {
         redirect: false,
         email: formData.email,
         password: formData.password,
-        callbackUrl: "/dashboard",
+        callbackUrl: callbackUrl,
       });
       if (!res?.error) {
-        router.push("/dashboard");
+        router.push(callbackUrl);
       } else {
         setError("Invalid credentials");
       }
-    } catch (error: unknown) {
+    } catch (error) {
       console.error(error);
     } finally {
       setIsLoading(false);
