@@ -59,7 +59,7 @@ export async function register(data: {
   if (users.length > 0) {
     return { status: false, message: "Email already exists", statusCode: 400 };
   } else {
-    data.role = "admin";
+    data.role = "member";
     data.password = await bcrypt.hash(data.password, 10);
 
     try {
@@ -81,7 +81,7 @@ export async function login(data: { email: string; password: string }) {
   const snapshot = await getDocs(q);
   const users = snapshot.docs.map((doc) => ({
     id: doc.id,
-    ...doc.data(),
+    ...(doc.data() as Omit<User, "id">),
   }));
 
   if (users.length > 0) {
