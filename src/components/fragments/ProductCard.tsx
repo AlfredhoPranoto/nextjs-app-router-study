@@ -12,6 +12,7 @@ const Header = ({ imageUrl }: { imageUrl: string }) => (
     className="p-8 rounded-t-lg w-full h-96 object-cover"
     src={imageUrl}
     alt="product image"
+    loading="lazy"
   />
 );
 
